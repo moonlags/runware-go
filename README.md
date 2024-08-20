@@ -43,4 +43,4 @@ func main() {
 ```
 For more examples see `examples` directory
 
-This library uses websockets under the box, because runway does not have a http api yet
+This library uses websockets under the hood, because runware does not have a http api yet
