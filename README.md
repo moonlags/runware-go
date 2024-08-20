@@ -2,7 +2,7 @@
 
 The SDK is used to run image inference with the Runware API, powered by the RunWare inference platform. It can be used to generate images with text-to-image prompt
 
-This is not an official library, but a simple and atleast working copy of it.
+This is not an official library, but a simple and at least working copy of it.
 
 ## Get Api Access
 
