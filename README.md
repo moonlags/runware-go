@@ -1,8 +1,8 @@
 # Golang Runware SDK
 
-The SDK is used to run image inference with the Runware API, powered by the RunWare inference platform. It can be used to generate imaged with text-to-image prompt
+The SDK is used to run image inference with the Runware API, powered by the RunWare inference platform. It can be used to generate images with text-to-image prompt
 
-This is not an official library, but a simple and atleast working copy of it.
+This is not an official library, but a simple and at least working copy of it.
 
 ## Get Api Access
 
@@ -43,4 +43,4 @@ func main() {
 ```
 For more examples see `examples` directory
 
-This library uses websockets under the box, because runway does not have a http api yet
+This library uses websockets under the hood, because runware does not have a http api yet
