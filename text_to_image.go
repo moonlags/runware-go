@@ -8,15 +8,18 @@ import (
 )
 
 type textToImageRequest struct {
-	TaskType       string `json:"taskType"`
-	TaskUUID       string `json:"taskUUID"`
-	PositivePrompt string `json:"positivePrompt"`
-	NegativePrompt string `json:"negativePrompt,omitempty"`
-	OutputFormat   string `json:"outputFormat,omitempty"`
-	Model          string `json:"model"`
-	NumberResults  int    `json:"numberResults"`
-	Width          int    `json:"width"`
-	Height         int    `json:"height"`
+	TaskType       string  `json:"taskType"`
+	TaskUUID       string  `json:"taskUUID"`
+	PositivePrompt string  `json:"positivePrompt"`
+	NegativePrompt string  `json:"negativePrompt,omitempty"`
+	OutputFormat   string  `json:"outputFormat,omitempty"`
+	Model          string  `json:"model"`
+	NumberResults  int     `json:"numberResults"`
+	Width          int     `json:"width"`
+	Height         int     `json:"height"`
+	Steps          int     `json:"steps,omitempty"`
+	CFGScale       float32 `json:"CFGScale,omitempty"`
+	IncludeCost    bool    `json:"includeCost"`
 }
 
 type TextToImageArgs struct {
@@ -27,31 +30,37 @@ type TextToImageArgs struct {
 	NumberResults  int
 	Width          int
 	Height         int
+	Steps          int
+	CFGScale       float32
+	IncludeCost    bool
 }
 
-func (c *Client) TextToImage(args TextToImageArgs) (string, error) {
+func (c *Client) TextToImage(args TextToImageArgs) ([]Image, error) {
 	req, err := ttIArgsToRequest(args)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	sendData, err := json.Marshal([]*textToImageRequest{req})
 	if err != nil {
-		return "", nil
+		return nil, nil
 	}
 
 	if err := c.Send(sendData); err != nil {
-		return "", nil
+		return nil, nil
 	}
+
+	images := make([]Image, 0)
+	var recieved int
 
 	for msg := range c.Listen() {
 		var msgData socketMessage
 		if err := json.Unmarshal(msg, &msgData); err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if err := c.checkError(msgData); err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if msgData.Data[0]["taskType"].(string) != "imageInference" || msgData.Data[0]["taskUUID"] != req.TaskUUID {
@@ -59,9 +68,16 @@ func (c *Client) TextToImage(args TextToImageArgs) (string, error) {
 			continue
 		}
 
-		return msgData.Data[0]["imageURL"].(string), nil
+		images = append(images, Image{
+			URL:  msgData.Data[0]["imageURL"].(string),
+			Cost: msgData.Data[0]["cost"].(float64),
+		})
+
+		if len(images) == recieved {
+			break
+		}
 	}
-	panic("unreachable")
+	return images, nil
 }
 
 func ttIArgsToRequest(args TextToImageArgs) (*textToImageRequest, error) {
@@ -95,5 +111,8 @@ func ttIArgsToRequest(args TextToImageArgs) (*textToImageRequest, error) {
 		NumberResults:  args.NumberResults,
 		Width:          args.Width,
 		Height:         args.Height,
+		Steps:          args.Steps,
+		CFGScale:       args.CFGScale,
+		IncludeCost:    args.IncludeCost,
 	}, nil
 }

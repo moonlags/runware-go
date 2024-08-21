@@ -41,7 +41,7 @@ func New(ctx context.Context, apiKey string) (*Client, error) {
 	go client.reconnectHandler()
 	go client.heartbeatHandler()
 
-	if err := client.Connect(ctx); err != nil {
+	if err := client.Connect(); err != nil {
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (c *Client) checkError(msg socketMessage) error {
 	return nil
 }
 
-func (c *Client) Connect(ctx context.Context) error {
+func (c *Client) Connect() error {
 	sendData, err := json.Marshal([]*ConnectRequestData{NewConnectRequestData(c.ApiKey)})
 	if err != nil {
 		return err

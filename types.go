@@ -11,3 +11,8 @@ func NewConnectRequestData(apikey string) *ConnectRequestData {
 		TaskType: "authentication",
 	}
 }
+
+type Image struct {
+	URL  string
+	Cost float64
+}

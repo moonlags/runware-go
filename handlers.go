@@ -1,7 +1,6 @@
 package runware
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"time"
@@ -63,7 +62,7 @@ func (c *Client) reconnectHandler() {
 			continue
 		}
 
-		if c.Connect(context.Background()) != nil {
+		if c.Connect() != nil {
 			time.Sleep(10 * time.Second)
 			c.reconnect <- true
 		}
