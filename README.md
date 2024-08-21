@@ -29,16 +29,33 @@ func main() {
 	if err != nil {
 		log.Fatal("Can not create runware client:", err)
 	}
+	defer client.Close()
 
-	url, err := client.TextToImage(runware.TextToImageArgs{
+	images, err := client.TextToImage(runware.TextToImageArgs{
 		PositivePrompt: "cool cat in sunglasses",
+		Model:          "runware:100@1",
+		IncludeCost:    true,
+		NumberResults:  4,
+	})
+	if err != nil {
+		log.Fatal("Can not generate image:", err)
+	}
+
+	for i, image := range images {
+		fmt.Printf("%d: %s - %f\n", i, image.URL, image.Cost)
+	}
+
+	images, err = client.TextToImage(runware.TextToImageArgs{
+		PositivePrompt: "a golden tree",
 		Model:          "runware:100@1",
 	})
 	if err != nil {
 		log.Fatal("Can not generate image:", err)
 	}
 
-	fmt.Println(url)
+	for i, image := range images {
+		fmt.Printf("%d: %s - %f\n", i, image.URL, image.Cost)
+	}
 }
 ```
 For more examples see `examples` directory

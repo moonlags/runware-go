@@ -51,9 +51,8 @@ func (c *Client) TextToImage(args TextToImageArgs) ([]Image, error) {
 	}
 
 	images := make([]Image, 0)
-	var recieved int
 
-	for msg := range c.Listen() {
+	for msg := range c.incomingMessages {
 		var msgData socketMessage
 		if err := json.Unmarshal(msg, &msgData); err != nil {
 			return nil, err
@@ -68,12 +67,17 @@ func (c *Client) TextToImage(args TextToImageArgs) ([]Image, error) {
 			continue
 		}
 
+		var cost float64
+		if _, ok := msgData.Data[0]["cost"]; ok {
+			cost = msgData.Data[0]["cost"].(float64)
+		}
+
 		images = append(images, Image{
 			URL:  msgData.Data[0]["imageURL"].(string),
-			Cost: msgData.Data[0]["cost"].(float64),
+			Cost: cost,
 		})
 
-		if len(images) == recieved {
+		if len(images) == req.NumberResults {
 			break
 		}
 	}

@@ -56,10 +56,6 @@ func (c *Client) Send(msg []byte) error {
 	return c.Conn.WriteMessage(websocket.TextMessage, msg)
 }
 
-func (c *Client) Listen() chan []byte {
-	return c.incomingMessages
-}
-
 func (c *Client) checkError(msg socketMessage) error {
 	if len(msg.Errors) < 1 {
 		return nil
@@ -83,7 +79,7 @@ func (c *Client) Connect() error {
 		return err
 	}
 
-	for msg := range c.Listen() {
+	for msg := range c.incomingMessages {
 		var msgData socketMessage
 		if err := json.Unmarshal(msg, &msgData); err != nil {
 			return err
