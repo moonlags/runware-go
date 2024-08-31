@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -13,6 +14,8 @@ type Client struct {
 	incomingMessages chan []byte
 	reconnect        chan bool
 	ApiKey           string
+
+	mu sync.Mutex
 }
 
 type socketMessage struct {
@@ -53,6 +56,9 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) Send(msg []byte) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	return c.Conn.WriteMessage(websocket.TextMessage, msg)
 }
 
