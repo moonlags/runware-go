@@ -15,8 +15,7 @@ func (c *Client) readHandler() {
 		_, msg, err := c.Conn.ReadMessage()
 		if err != nil {
 			c.reconnect <- true
-			time.Sleep(10 * time.Second)
-			continue
+			break
 		}
 
 		var msgData socketMessage
@@ -43,7 +42,7 @@ func (c *Client) heartbeatHandler() {
 		<-ticker.C
 		if err := c.Send([]byte(`{"taskType":"ping" ,"ping": true}`)); err != nil {
 			c.reconnect <- true
-			time.Sleep(10 * time.Second)
+			break
 		}
 	}
 }
@@ -59,6 +58,7 @@ func (c *Client) reconnectHandler() {
 		c.Conn, _, err = websocket.DefaultDialer.Dial("wss://ws-api.runware.ai/v1", nil)
 		if err != nil {
 			time.Sleep(10 * time.Second)
+			c.reconnect <- true
 			continue
 		}
 
@@ -66,5 +66,8 @@ func (c *Client) reconnectHandler() {
 			time.Sleep(10 * time.Second)
 			c.reconnect <- true
 		}
+
+		go c.heartbeatHandler()
+		go c.readHandler()
 	}
 }
