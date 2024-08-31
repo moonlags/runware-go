@@ -43,11 +43,11 @@ func (c *Client) TextToImage(args TextToImageArgs) ([]Image, error) {
 
 	sendData, err := json.Marshal([]*textToImageRequest{req})
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	if err := c.Send(sendData); err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	images := make([]Image, 0)
