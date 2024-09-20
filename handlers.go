@@ -2,6 +2,7 @@ package runware
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -23,6 +24,11 @@ func (c *Client) readHandler() {
 
 		if c.checkError(msgData) != nil {
 			c.incomingMessages <- msg
+			continue
+		}
+
+		if len(msgData.Data) < 1 {
+			fmt.Printf("Error: unknown message %s\n", string(msg))
 			continue
 		}
 
